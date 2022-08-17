@@ -1,8 +1,5 @@
 # Tic Tac Toe Player
-from argparse import Action
-import math
 import copy
-from operator import index
 
 X = "X"
 O = "O"
