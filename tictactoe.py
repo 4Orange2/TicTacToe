@@ -164,12 +164,9 @@ def utility(board):
     #raise NotImplementedError
     
 
-def insert_tuple(collection, list):
-    '''Inserts tuples into new list'''
-    index = -1
-    while abs(index) <= len(collection):
-        list.insert(0, collection[index])
-        index -= 1
+def insert_board(board, list):
+    '''Inserts board into board_list'''
+    list.insert(len(list), board)
 
 
 def minimax(board):
@@ -182,9 +179,7 @@ def minimax(board):
     # print("player: {}".format(turn))
     board_list = board # list of all boards that were explored
     init_frontier = actions(board)
-    global init_frontier_act
     init_frontier_act = 0
-    frontier = copy.deepcopy(init_frontier)
     
     def min_value_act(board):
         '''Gets the minimum - lowest value action'''
@@ -194,6 +189,7 @@ def minimax(board):
         #print("all_actions: {}".format(all_actions))
         v = 10
         optimal = ()
+        frontier = copy.deepcopy(init_frontier)
         print(f"initial_board: {board}")
         if terminal(board):
             print("board = terminal")
@@ -204,16 +200,15 @@ def minimax(board):
             print(f"individual action: {action}")
             board = result(board, action)
             print(f"new_board {board}")
-            board_list.append(board)
+            insert_board(board, board_list)
             print(f"board_list: {board_list}")
-            next_acts = make_frontier(board)
-            frontier.remove(action)
-            insert_tuple(next_acts, frontier)
+            frontier = make_frontier(board)
             print(f"frontier/queue: {frontier}")
             print("min_value_act board: {}".format(board))
-            if len(next_acts) == 0:
+            if len(frontier) == 0:
                 print("board filled")
                 board = find_parent_children()
+                frontier = make_frontier(board)
             if v > value(board):
                 optimal = init_frontier[init_frontier_act]
                 print(f"optimal: {optimal}")
@@ -221,43 +216,7 @@ def minimax(board):
                 if value(board) == -1:
                     return optimal
             print("value: {}".format(v))
-            #print("'Board' length: {}".format(len(board)))
-            #print("all_actions #2: {}".format(all_actions))
-    #optimal = all_actions[0]
-    #return optimal
     
-    def find_parent_children():
-        '''Finds a parent with two or more children
-        Variables:
-        board_list: list of boards (explored set)
-        ''' 
-        print("find_parent_children --------------")
-        index = -1
-        counter = 0
-        while counter <= len(board_list):
-            print(f"find_parent_children, board_list: {board_list}")
-            next_acts = make_frontier(board_list[index])
-            if len(next_acts) >= 1 and next_acts != None:
-                print(f"board that we backtracked to: {board_list[index]}")
-                if abs(index) == len(board_list):
-                    init_frontier_act += 1
-                return board_list[index]
-            index -= 1
-            counter += 1
-        print("find_parent_children == failed")
-
-    def make_frontier(board):
-        '''Keeps the branches that haven't been explored and removes the others'''
-        print("frontier()")
-        frontier = []
-        next_acts = actions(board)
-        for action in next_acts:
-            new_board = result(board, action)
-            if board_list.count(new_board) == 0:
-                frontier.append(action)
-                print(f"frontier: {frontier}")
-        return frontier
-
     def max_value_act(board):
         '''Gets the maximum - highest value action'''
         print("------")
@@ -282,6 +241,44 @@ def minimax(board):
             print("value: {}".format(v))
             print("'Board' length: {}".format(len(board)))
         return optimal
+
+            #print("'Board' length: {}".format(len(board)))
+            #print("all_actions #2: {}".format(all_actions))
+    #optimal = all_actions[0]
+    #return optimal
+    
+    def find_parent_children():
+        '''Finds a parent with two or more children
+        Variables:
+        board_list: list of boards (explored set)
+        ''' 
+        print("find_parent_children --------------")
+        index = -1
+        counter = 0
+        while counter <= (len(board_list) // 2):
+            print(f"find_parent_children, board_list: {board_list}")
+            next_acts = make_frontier(board_list[index])
+            print(f"find_parent_children, next_acts: {next_acts}")
+            if len(next_acts) >= 1 and next_acts != None:
+                print(f"board that we backtracked to: {board_list[index]}")
+                if abs(index) == len(board_list):
+                    init_frontier_act += 1
+                return board_list[index]
+            index -= 1
+            counter += 1
+        print("find_parent_children == failed")
+
+    def make_frontier(board):
+        '''Keeps the branches that haven't been explored and removes the others'''
+        print("frontier()")
+        frontier = []
+        next_acts = actions(board)
+        for action in next_acts:
+            new_board = result(board, action)
+            if board_list.count(new_board) == 0:
+                frontier.append(action)
+                print(f"frontier: {frontier}")
+        return frontier
 
     if turn == X:
         opt_act = max_value_act(new_board)
